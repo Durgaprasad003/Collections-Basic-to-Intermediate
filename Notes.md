@@ -971,3 +971,6 @@ You wrote:
 Collections.sort(list, (a,b) -> a.id - b.id);
 
 That lambda expression is automatically converted into a Comparator object.
+
+
+
