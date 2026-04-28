@@ -1092,3 +1092,419 @@ Double.compare(30000, 70000)
 Result = negative
 
 Meaning Asha should come before John.
+
+
+
+Why Set uses HashMap internally?*******************8
+Because uniqueness based on key uniqueness.
+
+Interviewer: Which collection used in caching?
+Answer:
+LinkedHashMap for LRU cache
+ConcurrentHashMap for multi-thread cache
+
+
+Important Interview Question
+Difference between synchronizedList() and unmodifiableList()
+synchronizedList()	unmodifiableList()
+Thread safe	        Read only
+Can modify	        Cannot modify
+
+
+| Map Type            | Thread Safe? |
+| ------------------- | ------------ |
+| `HashMap`           | ❌ No         |
+| `LinkedHashMap`     | ❌ No         |
+| `TreeMap`           | ❌ No         |
+| `Hashtable`         | ✅ Yes        |
+| `ConcurrentHashMap` | ✅ Yes        |
+
+
+*******************************************
+HashMap is not thread-safe because it has no internal synchronization.
+When multiple threads access and modify it simultaneously, operations like put(), get(), resize(), and rehashing can interleave, causing:
+
+data inconsistency
+lost updates
+corrupted internal structure
+infinite loops (older JDK resize issues)
+unpredictable results
+Why?
+
+HashMap is designed for high single-thread performance, so Java did not add locking overhead.
+
+
+
+Collection
+   └── Set
+        ├── SortedSet
+        │     └── NavigableSet
+        └── HashSet / LinkedHashSet / TreeSet (classes)
+1. Set
+
+A collection of unique elements (no duplicates).
+
+Set<Integer> set = new HashSet<>();
+set.add(5);
+set.add(2);
+set.add(5);   // duplicate ignored
+
+System.out.println(set); // [2, 5]
+2. SortedSet
+
+A Set that keeps elements in sorted order (ascending by default).
+
+Usually implemented by TreeSet.
+
+SortedSet<Integer> numbers = new TreeSet<>();
+
+numbers.add(30);
+numbers.add(10);
+numbers.add(20);
+
+System.out.println(numbers); // [10, 20, 30]
+System.out.println(numbers.first()); // 10
+System.out.println(numbers.last());  // 30
+
+*****************************
+A Map does not allow duplicate keys, although duplicate values are allowed. In a HashMap, only one null key is permitted because null is handled separately in a special bucket. A TreeMap does not allow null keys because it uses sorting and comparison.
+
+
+
+
+______________________________**********************************************_____________________________
+IF WE ADD SET.ADD(5) THEN WE SHOULD DO MODULUS TO FIND THE INDEXT LIKE 16)5(0  ->5  SO 5 WILL STORE IN 5TH INDEX BUCKET  IF TWO ELEMENTS ARE STORED IN SAME BUCKET THEN HASH COLLISIOIN THEN IT WILL USE LINKEDLIST SO THAT IT WILL CREATE NODES AND LINKS LIKE NEXT IF WE EXCEED 8 BUCKETS THEN IT WILL USE REDBLACK TREE    correct this in detail
+When we call set.add(5), the HashSet first computes the hash code of the element and then uses a modulus / bit-masking operation to determine the bucket index where the element should be stored.
+
+For example, if the internal table size is 16, the calculated bucket index for 5 may map to bucket 5 (implementation depends on the hashing formula). So the element 5 is stored in the bucket at index 5.
+
+If two different elements map to the same bucket index, this is called a hash collision. In that case, both elements are stored in the same bucket.
+
+In older implementations, collisions were handled using a Linked List:
+
+Each bucket stores the first node.
+Additional collided elements are added as nodes connected through next references.
+
+If too many elements accumulate in one bucket, lookup performance becomes slower.
+
+In modern Java HashMap / HashSet implementations, when the number of nodes in a single bucket exceeds a threshold (typically 8) and the table capacity is large enough (at least 64), the linked list is converted into a Red-Black Tree.
+
+A Red-Black Tree is a self-balancing binary search tree that improves search, insert, and delete performance in that bucket from approximately O(n) to O(log n).
+
+Corrected Summary
+set.add(5) is called.
+Hash is calculated for 5.
+Bucket index is found using table size.
+5 is stored in that bucket.
+If another element maps to the same bucket → collision occurs.
+Elements are first stored as a linked list.
+If bucket node count becomes more than 8 (with sufficient capacity), it converts to a Red-Black Tree.
+
+
+Map does not prevent collisions. It prevents duplicate keys.*************************************
+
+***********************************
+Those are two different concepts:
+
+1. Duplicate Key
+
+A duplicate means the same key is inserted again.
+
+Example in HashMap:
+
+map.put("A", 10);
+map.put("A", 20);
+
+Here key "A" already exists, so the second insert replaces the old value.
+
+Result:
+
+{A=20}
+
+No duplicate key is stored.
+
+2. Collision
+
+A collision means different keys produce the same bucket index.
+
+Example:
+
+key1 = "FB"
+key2 = "Ea"
+
+These different strings are famous because they can generate the same hash code in Java.
+
+So:
+
+"FB" ≠ "Ea" (different keys)
+But both may go to the same bucket
+
+That is a collision.
+
+
+
+*****************************************
+Internal Process
+Step 1: Calculate Hash
+
+For the new key, Java computes:
+
+hash = key.hashCode()
+
+Example:
+
+"FB".hashCode()
+"Ea".hashCode()
+
+These may produce the same hash.
+
+Step 2: Find Bucket Index
+
+Java calculates index:
+
+index = (n - 1) & hash
+
+Where n = table size (like 16)
+
+If both keys get index 5, both go to bucket 5.
+
+Step 3: Check Bucket
+
+If bucket 5 is empty:
+
+insert directly
+
+If bucket 5 already has node(s):
+
+collision detected
+
+Because another key is already there.
+
+Step 4: Compare Existing Keys
+
+Java traverses linked list/tree in that bucket and checks:
+
+if (existing.hash == newHash &&
+   (existing.key == key || key.equals(existing.key)))
+Two Cases:
+Case A: Same Key
+map.put("A",1);
+map.put("A",2);
+
+Same key found → update value.
+
+Case B: Different Key Same Bucket
+map.put("FB",1);
+map.put("Ea",2);
+
+Different key, same index → collision → add new node.
+
+Important Point
+
+Collision is detected when:
+
+Target bucket already contains another entry, but key is different.
+
+Visual Example
+
+Bucket 5:
+
+Before:
+
+[FB=1]
+
+Add "Ea":
+
+Same bucket
+Different key
+
+After:
+
+[FB=1] -> [Ea=2]
+Final Answer
+
+During put() or add(), HashMap:
+
+Calculates hash
+Finds bucket index
+Checks if bucket already has data
+If yes, compares keys
+Different key = collision
+Same key = replace value
+
+
+
+
+
+Java roughly does:
+
+Compute hashCode()
+Find bucket index
+Go to that bucket
+If bucket has entries, compare with existing nodes:
+hash same?
+then equals() check key equality
+Why equals() Is Needed
+
+Many different objects can:
+
+have same bucket index
+even same hash code
+
+So Java cannot trust hash alone.
+
+It uses equals() to confirm whether keys represent the same key.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+***********************
+1. Capacity
+
+Capacity = number of buckets (array slots) inside the HashMap.
+
+HashMap stores entries in an internal array of buckets.
+
+If capacity = 16, there are 16 bucket positions.
+
+HashMap<Integer, String> map = new HashMap<>();
+
+Default initial capacity is usually 16.
+
+Visual
+Index:   0   1   2   3   4 ... 15
+        [ ] [ ] [ ] [ ] [ ] ... [ ]
+
+Each bucket can hold nodes/entries.
+
+2. Load Factor
+
+Load factor = percentage of capacity allowed before resize.
+
+Default:
+
+0.75
+
+Means when HashMap becomes 75% full, it expands.
+
+Why not 100%?
+
+Because too many entries increase collisions and slow performance.
+
+So Java balances:
+
+memory usage
+speed
+3. Threshold
+
+Threshold = capacity × load factor
+
+When size exceeds threshold, HashMap resizes.
+
+Default HashMap Example
+HashMap<Integer, String> map = new HashMap<>();
+
+Default values:
+
+Capacity = 16
+Load Factor = 0.75
+Threshold = 16 × 0.75 = 12
+
+So when you add the 13th element, resize happens.
+
+Resize Process
+
+When threshold exceeded:
+
+capacity doubles
+16 -> 32
+
+New threshold:
+
+32 × 0.75 = 24
+
+Next resize at 25th insertion.
+
+
+
+
+
+
+
+
+
+Default:
+
+Capacity = 16 buckets
+Load Factor = 0.75
+
+So threshold is:
+
+16×0.75=12
+
+That means HashMap allows 12 entries safely before resizing.
+
+What happens when adding elements?
+Insert 1st to 12th element
+
+No resize.
+
+size = 1 ... 12
+capacity = 16
+
+Still same internal bucket array.
+
+Insert 13th element
+
+Now size becomes 13, which crossed threshold 12.
+
+So HashMap says:
+
+Too full. Increase buckets.
+
+Then resize happens:
+
+capacity: 16 -> 32
+After Resize
+
+Now HashMap recalculates threshold:
+
+32×0.75=24
+
+So new threshold = 24
+
+Meaning:
+
+Up to 24 entries = no resize
+When adding 25th element = resize again
+Timeline
+Inserted Elements	Capacity	Threshold	Resize?
+1 to 12	16	12	No
+13	32	24	Yes
+14 to 24	32	24	No
+25	64	48	Yes
+
+***********************************
+
+Because HashMap resize rule is: when expansion happens, capacity usually doubles.
+
+So:
+
+16 -> 32
+32 -> 64
+64 -> 128
+
+
