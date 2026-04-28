@@ -47,7 +47,9 @@ public int compareTo(Studentcomparator o) {
         // System.out.println(list);
 
         Collections.sort(list,(a,b)->a.name.compareTo(b.name));
-        System.out.println(list);
+        System.out.println("withnames"+list);
+         Collections.sort(list,(a,b)->b.name.compareTo(a.name));
+        System.out.println("withnames"+list);
         Collections.sort(list, (a,b) -> a.id - b.id);
         System.out.println(list);
         Collections.sort(list, Collections.reverseOrder());
@@ -64,6 +66,16 @@ list.sort(
 );
 System.out.println("last"+list);
 
+// :: is called the method reference operator.****************************
+// 1. ClassName::instanceMethod
+// Student::getName
+// Equivalent:
+// s -> s.getName()
+// 2. object::instanceMethod
+// System.out::println
+// System.out::println
+// Equivalent:
+// x -> System.out.println(x)
 
 
 // 6. Multiple Sorting

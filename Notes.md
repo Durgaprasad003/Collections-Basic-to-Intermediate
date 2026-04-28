@@ -974,3 +974,121 @@ That lambda expression is automatically converted into a Comparator object.
 
 
 
+
+
+Collections Utility Class
+
+Methods:
+
+sort()
+reverse()
+shuffle()
+max()
+min()
+binarySearch()
+frequency()
+disjoint()
+synchronizedList()
+unmodifiableList()
+
+
+ Set<Integer> set=new HashSet<>(list);
+       System.out.println(set);
+       Iterator<Integer> it=set.iterator();
+       while (it.hasNext()) {
+        System.out.println(it.next());
+        set.add(4);
+        
+       }   // it dont throw concurrent modificationexception if the element is already present in this set
+
+
+Why Two Forms Exist
+1. Old Style
+Collections.sort(list, comparator);
+
+Static utility method from Collections.
+
+2. Modern Style (Java 8+)
+list.sort(comparator);
+
+Default method on List interface.
+
+Same Meaning
+
+Both sort the list using the comparator you provide.
+
+Short Interview Answer
+
+list.sort(...) internally uses a comparator, same purpose as Collections.sort(list, comparator).
+
+
+Ascending Order Example
+Employee Class
+class Employee {
+    String name;
+    double salary;
+
+    Employee(String name, double salary) {
+        this.name = name;
+        this.salary = salary;
+    }
+
+    public String toString() {
+        return name + " - " + salary;
+    }
+}
+Main Program
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+
+        List<Employee> employees = new ArrayList<>();
+
+        employees.add(new Employee("Ravi", 50000));
+        employees.add(new Employee("Asha", 30000));
+        employees.add(new Employee("John", 70000));
+
+        employees.sort((a,b) -> Double.compare(a.salary, b.salary));
+
+        System.out.println(employees);
+    }
+}
+Output
+[Asha - 30000.0, Ravi - 50000.0, John - 70000.0]
+
+
+
+Better Modern Version****************************************
+Use method reference style:
+employees.sort(Comparator.comparingDouble(e -> e.salary));
+employees.sort(Comparator.comparingDouble((Employee e) -> e.salary).reversed());
+
+
+[Ravi(50000), Asha(30000), John(70000)]
+
+During sorting, Java may compare pairs like this:
+
+Comparison 1
+a = Ravi
+b = Asha
+
+Then:
+
+Double.compare(50000, 30000)
+
+Result = positive
+
+Meaning Ravi salary is bigger, so Ravi should come after Asha.
+
+Comparison 2
+a = Asha
+b = John
+
+Then:
+
+Double.compare(30000, 70000)
+
+Result = negative
+
+Meaning Asha should come before John.
