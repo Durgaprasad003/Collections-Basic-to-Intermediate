@@ -1508,3 +1508,894 @@ So:
 64 -> 128
 
 
+
+Common Implementations**************************************
+Map Type	Thread Safe?
+HashMap	❌ No
+LinkedHashMap	❌ No
+TreeMap	❌ No
+Hashtable	✅ Yes
+ConcurrentHashMap	✅ Yes
+
+
+Why Set uses HashMap internally?*******************8
+Because uniqueness based on key uniqueness.
+
+
+HashMap is not thread-safe because it has no internal synchronization.*****************************
+When multiple threads access and modify it simultaneously, operations like put(), get(), resize(), and rehashing 
+can interleave, causing:
+data inconsistency
+HashMap is designed for high single-thread performance, so Java did not add locking overhead.
+
+
+
+Interviewer: Which collection used in caching?
+Answer:
+LinkedHashMap for LRU cache
+ConcurrentHashMap for multi-thread
+
+
+*********************************
+3. Why HashMap Allows One Null Key
+
+Because null has no hashCode().
+
+Java reserves bucket index 0 for null key.
+
+map.put(null, "value");
+
+Only one null key because keys must be unique.
+
+
+
+
+*****************************8
+Why TreeMap does not allow null key?
+
+TreeMap sorts keys using:
+
+natural ordering (Comparable)
+or
+Comparator
+
+To compare keys, it needs ordering. null cannot be compared naturally, so by default:
+
+TreeMap<String, Integer> tm = new TreeMap<>();
+tm.put(null, 1); // Exception
+
+Throws:
+
+NullPointerException
+But note:
+
+If you provide a custom comparator that handles nulls, TreeMap can support null keys in some cases.
+
+
+******************************
+HASHMAP INTERNAL TABLE CONTAINS 0-15BUCKETS   
+IF WE ADD SET.ADD(5) THEN WE SHOULD DO MODULUS TO FIND THE INDEXT LIKE 16)5(0  ->5  SO 5 WILL STORE IN 5TH INDEX BUCKET  IF TWO ELEMENTS ARE STORED IN SAME BUCKET THEN HASH COLLISIOIN THEN IT WILL USE LINKEDLIST SO THAT IT WILL CREATE NODES AND LINKS LIKE NEXT IF WE EXCEED 8 BUCKETS THEN IT WILL USE REDBLACK TREE
+
+
+
+When we call set.add(5), the HashSet first computes the hash code of the element and then uses a modulus / bit-masking operation to determine the bucket index where the element should be stored.
+
+For example, if the internal table size is 16, the calculated bucket index for 5 may map to bucket 5 (implementation depends on the hashing formula). So the element 5 is stored in the bucket at index 5.
+
+If two different elements map to the same bucket index, this is called a hash collision. In that case, both elements are stored in the same bucket.
+
+In older implementations, collisions were handled using a Linked List:
+
+Each bucket stores the first node.
+Additional collided elements are added as nodes connected through next references.
+
+If too many elements accumulate in one bucket, lookup performance becomes slower.
+
+In modern Java HashMap / HashSet implementations, when the number of nodes in a single bucket exceeds a threshold (typically 8) and the table capacity is large enough (at least 64), the linked list is converted into a Red-Black Tree.
+
+A Red-Black Tree is a self-balancing binary search tree that improves search, insert, and delete performance in that bucket from approximately O(n) to O(log n).
+
+Corrected Summary
+set.add(5) is called.
+Hash is calculated for 5.
+Bucket index is found using table size.
+5 is stored in that bucket.
+If another element maps to the same bucket → collision occurs.
+Elements are first stored as a linked list.
+If bucket node count becomes more than 8 (with sufficient capacity), it converts to a Red-Black Tree.
+
+present=new object() ************** if we add set.add(5) it will call map.put(5,present)
+
+2. Collision
+
+A collision means different keys produce the same bucket index.*******
+
+
+
+___________________*****************************************__________________________
+
+Internal Process
+Step 1: Calculate Hash
+
+For the new key, Java computes:
+
+hash = key.hashCode()
+
+Example:
+
+"FB".hashCode()
+"Ea".hashCode()
+
+These may produce the same hash.
+
+Step 2: Find Bucket Index
+
+Java calculates index:
+
+index = (n - 1) & hash
+
+Where n = table size (like 16)
+
+If both keys get index 5, both go to bucket 5.
+
+Step 3: Check Bucket
+
+If bucket 5 is empty:
+
+insert directly
+
+If bucket 5 already has node(s):
+
+collision detected
+
+Because another key is already there.
+
+Step 4: Compare Existing Keys
+
+Java traverses linked list/tree in that bucket and checks:
+
+if (existing.hash == newHash &&
+   (existing.key == key || key.equals(existing.key)))
+Two Cases:
+Case A: Same Key
+map.put("A",1);
+map.put("A",2);
+
+Same key found → update value.
+
+Case B: Different Key Same Bucket
+map.put("FB",1);
+map.put("Ea",2);
+
+Different key, same index → collision → add new node.
+
+Important Point
+
+Collision is detected when:
+
+Target bucket already contains another entry, but key is different.
+
+
+
+Compute hashCode()
+Find bucket index
+Go to that bucket
+If bucket has entries, compare with existing nodes:
+hash same?
+then equals() check key equality
+Why equals() Is Needed
+
+Many different objects can:
+
+have same bucket index
+even same hash code
+
+So Java cannot trust hash alone.
+
+It uses equals() to confirm whether keys represent the same key.
+
+
+
+
+
+*****************************************************************
+1. Capacity
+
+Capacity = number of buckets (array slots) inside the HashMap.
+
+HashMap stores entries in an internal array of buckets.
+
+If capacity = 16, there are 16 bucket positions.
+
+HashMap<Integer, String> map = new HashMap<>();
+
+Default initial capacity is usually 16.
+
+Visual
+Index:   0   1   2   3   4 ... 15
+        [ ] [ ] [ ] [ ] [ ] ... [ ]
+
+Each bucket can hold nodes/entries.
+
+2. Load Factor
+
+Load factor = percentage of capacity allowed before resize.
+
+Default:
+
+0.75
+
+Means when HashMap becomes 75% full, it expands.
+
+Why not 100%?
+
+Because too many entries increase collisions and slow performance.
+
+So Java balances:
+
+memory usage
+speed
+3. Threshold
+
+Threshold = capacity × load factor
+
+When size exceeds threshold, HashMap resizes.
+
+Default HashMap Example
+HashMap<Integer, String> map = new HashMap<>();
+
+Default values:
+
+Capacity = 16
+Load Factor = 0.75
+Threshold = 16 × 0.75 = 12
+
+So when you add the 13th element, resize happens.
+
+Resize Process
+
+When threshold exceeded:
+
+capacity doubles
+16 -> 32
+
+New threshold:
+
+32 × 0.75 = 24
+
+Next resize at 25th insertion
+
+
+Default:
+
+Capacity = 16 buckets
+Load Factor = 0.75
+
+So threshold is:
+
+16×0.75=12
+
+That means HashMap allows 12 entries safely before resizing.
+
+What happens when adding elements?
+Insert 1st to 12th element
+
+No resize.
+
+size = 1 ... 12
+capacity = 16
+
+Still same internal bucket array.
+
+Insert 13th element
+
+Now size becomes 13, which crossed threshold 12.
+
+So HashMap says:
+
+Too full. Increase buckets.
+
+Then resize happens:
+
+capacity: 16 -> 32
+After Resize
+
+Now HashMap recalculates threshold:
+
+32×0.75=24
+
+So new threshold = 24
+
+Meaning:
+
+Up to 24 entries = no resize
+When adding 25th element = resize again
+Timeline
+Inserted Elements	Capacity	Threshold	Resize?
+1 to 12	16	12	No
+13	32	24	Yes
+14 to 24	32	24	No
+25	64	48	Yes
+
+
+*************************************************
+Because HashMap resize rule is: when expansion happens, capacity usually doubles.
+
+So:
+
+16 -> 32
+32 -> 64
+64 -> 128
+
+It does not increase by +1 or +10. It multiplies by 2.
+
+********************************************************
+Simple Example
+
+Initial:
+
+capacity = 16
+threshold = 12
+
+When you insert 13th element:
+
+size = 13 > threshold = 12
+
+So resize:
+
+16×2=32
+
+New capacity = 32
+
+Then new threshold:
+
+32×0.75=24
+
+**********************
+for arraylist
+2. Default Capacity
+In modern Java versions:
+new ArrayList<>()
+When first element is added, capacity becomes:
+10
+All these represent roughly the same growth logic:
+oldCapacity * 3 / 2
+oldCapacity + oldCapacity / 2
+oldCapacity + (oldCapacity >> 1)
+Time Complexity
+Operation	Time
+get()	O(1)
+add(end)	O(1) amortized
+insert middle	O(n)
+remove middle	O(n)
+
+
+
+******************************************8
+What is LinkedList?
+
+Doubly linked list implementation.
+Why Use LinkedList?
+
+Best when:
+
+Frequent insertion/deletion
+Add/remove at ends
+Queue usage
+
+
+Methods
+addFirst()
+list.addFirst("X");
+addLast()
+removeFirst()
+removeLast()
+getFirst()
+getLast()
+
+**********************************
+What is Vector?
+
+Vector is a legacy dynamic array class in Java.
+
+It is similar to ArrayList, but thread-safe because methods are synchronized.
+
+Vector<String> v = new Vector<>();
+
+
+Why Vector Came?
+
+Before Java Collections modernization, Vector was used as resizable array.
+Later ArrayList introduced for better performance.
+
+Why Vector Slower?
+
+Because methods use synchronized. public synchronized boolean add(E e)
+
+addElement() **************Legacy method.
+elementAt(index)
+v.elementAt(0);
+firstElement()
+lastElement()
+removeElement()
+
+**********************************************************
+A Stack is a linear data structure that follows the LIFO principle — Last In, First Out. It means the element inserted most recently is removed first.
+
+Example: like a stack of plates. The last plate placed on top is the first one removed.
+
+Core operations are:
+
+push() → insert element on top
+pop() → remove top element
+peek() → view top element without removing
+isEmpty() → check whether stack has elements
+
+In Java, Stack can be implemented using:******************
+
+Array
+Linked List
+Stack class (legacy)
+Deque (ArrayDeque) → preferred modern approac
+Deque<Integer> stack = new ArrayDeque<>();
+
+stack.push(10);
+stack.push(20);
+stack.push(30);
+
+System.out.println(stack.pop()); // 30
+System.out.println(stack.pop()); // 20
+
+1. Stack Class Is Legacy*****************
+Java’s Stack class extends Vector, so it is older and synchronized***
+Deque<Integer> stack = new ArrayDeque<>();
+
+2. Real-World Uses of Stack
+
+Mention practical use:
+
+Function call stack / recursion
+Undo/redo systems
+Browser back/forward history
+
+********************************88
+Key Point: ArrayDeque is not just a Queue
+ArrayDeque means:
+Array + Deque
+And Deque stands for:
+Double Ended Queue
+It allows insertion/removal from both ends.
+So it can behave as:
+Queue (FIFO)
+Stack (LIFO)
+
+
+vector is parent and stack is child because stack extends vector
+
+
+
+*****************************************************************************************************
+How Deque Performs Stack Operations
+
+Use one end only (usually front):
+
+Stack Operation	Deque Method
+push(x)	push(x) / addFirst(x)
+pop()	pop() / removeFirst()
+peek()	peek() / peekFirst()
+
+
+
+
+
+
+
+SET
+A Set is a collection in Java that stores unique elements, meaning it does not allow duplicate values.
+Unlike List, Set does not support index-based access, and ordering depends on the implementation.
+
+Core Characteristics
+no order
+no indexing
+No duplicate elements
+Stores objects only
+No get(index) method
+Allows at most one null in some implementations
+Fast lookup in certain implementations
+
+Why Use Set?
+Use when uniqueness required.
+Examples:
+Unique emails
+Unique usernames
+
+
+What is HashSet?
+
+Most used Set implementation.
+
+Internally uses:
+
+HashMap
+
+Each element stored as key in HashMap.
+
+HashSet<String> set = new HashSet<>();
+Why No Duplicates?
+
+Because HashMap keys cannot duplicate.
+
+
+
+Important Methods
+add()
+Returns boolean.
+set.add("A");
+If duplicate → false
+remove()
+contains()
+isEmpty()
+size()
+clear()
+
+
+5. LINKEDHASHSET
+What is LinkedHashSet?
+Same as HashSet but maintains insertion order.
+Why Order Maintained?
+Uses linked list internally along with hash table.
+
+6. TREESET
+What is TreeSet?
+Sorted Set implementation.
+Stores elements in sorted order.
+Internal Structure
+Uses:
+Red Black Tree
+
+
+
+first()
+last()
+higher(x)
+
+Greater than x.
+
+lower(x)
+
+Less than x.
+
+ceiling(x)
+
+= x
+
+floor(x)
+
+<= x
+
+Example
+TreeSet<Integer> ts = new TreeSet<>();
+
+ts.add(10);
+ts.add(20);
+ts.add(30);
+
+System.out.println(ts.higher(20));
+
+Output:
+30
+
+
+Can two unequal objects have same hashCode?
+Yes.
+Called collision.
+
+
+
+
+
+********************************************************************************************
+When equals() Is Used in put()
+
+If another key already exists in same bucket:
+
+Compare hash
+Compare keys
+if (k == key || key.equals(k))
+
+If equal:
+
+replace old value
+
+If not equal:
+
+add new node in chain/tree
+
+
+
+Preserve order + unique
+LinkedHashSet<String> set = new LinkedHashSet<>();
+
+set.add("B");
+set.add("A");
+set.add("B");
+System.out.println(set);
+
+
+Which Set to choose?
+Fast unique lookup → HashSet
+Need insertion order → LinkedHashSet
+Need sorted data → TreeSet
+
+
+
+
+
+*********************************************map*****************************************
+A Map is a collection framework data structure that stores elements in the form of key and value pairs. Each key is unique, and it is used to retrieve the corresponding value efficiently. If we insert a duplicate key, the old value gets replaced by the new value.
+
+Maps are widely used in real-world applications such as storing employee records using employee ID as key, product details using product code, caching systems, dictionaries, and configuration settings.
+
+Important Features of Map
+Stores data as Key → Value
+Keys must be unique
+Values can be duplicate (depends on language/framework)
+Provides fast searching using key
+Useful for large datasets
+Use these smart lines:
+
+✅ “Map is preferred when data retrieval by key needs to be optimized.”
+
+✅ “Choosing the right Map implementation depends on requirements like ordering, sorting, and thread safety.”
+
+✅ “In enterprise applications, Map is heavily used for caching, indexing, and configuration management.”
+
+
+employeeId → employeeName
+username → password
+countryCode → countryName
+productId → productDetails
+word → frequency count
+
+
+Why Map Is Not Child of Collection?*****************************
+Because Collection stores only values:
+[A, B, C]
+Map stores pair:
+(key,value)
+Different structure.
+
+
+Step 1
+
+Calls:
+
+101.hashCode()
+Step 2
+
+Converts hash to bucket index.
+
+index = hash & (n - 1)
+
+(n = capacity)
+
+Step 3
+
+Go to bucket.
+
+Step 4
+
+If empty → insert node.
+
+Step 5
+
+If same key exists → replace value.
+
+Step 6
+
+If collision → linked list/tree.
+
+****************************************
+Why Only One Null Key?
+
+Because key uniqueness.
+
+treemap***********************8
+Useful Methods
+firstKey()
+lastKey()
+higherKey(x)
+lowerKey(x)
+ceilingKey(x)
+floorKey(x)
+
+
+*****************************************
+What is Hashtable?
+
+Legacy synchronized map.
+
+Hashtable<Integer,String> table = new Hashtable<>();
+Features
+Thread safe
+No null key
+No null value
+Legacy class
+Slower than HashMap
+Modern Replacement
+
+Use:
+
+ConcurrentHashMap
+
+
+
+
+
+
+11. CONCURRENTHASHMAP
+What is It?
+
+Thread-safe high performance map.
+
+Used in multi-threaded apps.
+
+ConcurrentHashMap<Integer,String> map = new ConcurrentHashMap<>();
+
+
+
+
+Why Better Than Hashtable?************************************
+
+Hashtable locks whole map.
+
+ConcurrentHashMap uses fine-grained locking / advanced concurrency
+
+
+
+12. WEAKHASHMAP
+What is It?
+Keys stored with weak references.
+If key has no strong reference elsewhere:
+GC can remove entry
+
+
+Best Method
+for(Map.Entry<Integer,String> e : map.entrySet()){
+   System.out.println(e.getKey()+" "+e.getValue());
+}
+Using Lambda
+map.forEach((k,v) -> System.out.println(k+" "+v));
+
+
+
+| HashMap          | Hashtable    |
+| ---------------- | ------------ |
+| Not synchronized | Synchronized |
+| Allows null      | No null      |
+| Fast             | Slower       |
+
+
+
+
+
+
+
+
+
+A Queue is a linear data structure that follows the FIFO (First In, First Out) principle. This means the element inserted first will be removed first.
+
+It works like a real-life queue, such as people waiting in line at a ticket counter. The first person in line is served first.
+
+Main Operations of Queue
+add() / offer() → insert element at rear
+remove() / poll() → remove element from front
+element() / peek() → view front element without removing
+
+Real-Time Uses
+Printer task scheduling
+CPU job scheduling
+Call center waiting systems
+
+
+********************************************
+Queue is an interface.
+
+Common classes implementing Queue:
+LinkedList
+PriorityQueue
+ArrayDeque
+BlockingQueue implementations
+
+
+add() throws exception if full
+offer() returns false
+Difference remove() vs poll()
+remove() throws exception if empty
+poll() returns null
+Difference element() vs peek()
+element() throws exception if empty
+peek() returns null
+
+
+
+2. Deque (Double Ended Queue)
+
+Deque = queue with insertion/removal at both ends.
+
+import java.util.Deque;
+
+You can:
+
+insert front
+insert rear
+remove front
+remove rear
+Deque Methods
+
+| Method        | Meaning      |
+| ------------- | ------------ |
+| addFirst()    | insert front |
+| addLast()     | insert rear  |
+| removeFirst() | remove front |
+| removeLast()  | remove rear  |
+| peekFirst()   | front        |
+| peekLast()    | rear         |
+
+3. PriorityQueue
+
+A special queue where elements are ordered by priority.
+
+Default:
+
+Min Heap
+
+Smallest comes first.
+
+
+
+
+**********************************
+5. BlockingQueue
+
+Used in Multithreading
+
+Package:
+
+import java.util.concurrent.*;
+
+Thread-safe queue.
+
+If queue empty:
+
+consumer waits
+
+If queue full:
+
+producer waits
+
+
+wee need comparable for custom object sorting ***********************************************
+
+
+
+Why Use Comparator?
+
+When multiple sorting rules needed.
+
+Example Employee can be sorted by:
+
+id
+name
+salary
+age
+
+Comparable gives one default rule only.
+
+Comparator gives unlimited rules.
+
+Example: Sort by Name
+Comparator<Employee> byName =
+(a,b) -> a.name.compareTo(b.name);
+
+Collections.sort(list, byName);

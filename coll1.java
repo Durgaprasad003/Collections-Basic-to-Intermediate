@@ -122,12 +122,54 @@ Map<String, Integer> map = new HashMap<>();
 // }
    
 
-for(Map.Entry<String,Integer> e : map.entrySet()) {
-    System.out.println(e.getKey()+" "+e.getValue());
-}
+// for(Map.Entry<String,Integer> e : map.entrySet()) {
+//     System.out.println(e.getKey()+" "+e.getValue());
+// }
         
-System.out.println(map);
+// System.out.println(map);
+// Comparator<Employee> byName =
+// (a,b) -> a.name.compareTo(b.name);
 
+// Collections.sort(list, byName);
+
+// Comparator<Employee> bySalary =
+// (a,b) -> Double.compare(a.salary,b.salary);
+
+   List<Integer> list=new ArrayList<>();
+   list.add(4);
+   list.add(5);
+   list.add(1,3);
+//    list.remove(Integer.valueOf(5));  88888888888888888888888
+// list.remove(list.indexOf(4));
+   System.out.println(list);
+
+
+   List<Integer> lists = Arrays.asList(40, 10, 30, 20);
+lists.sort((a, b) -> a - b);
+System.out.println(list);   //[10, 20, 30, 40]
+
+list.sort((a, b) -> b - a);   //[40, 30, 20, 10]
+
+List<String> names = new ArrayList<>();
+names.add("Ravi");
+names.add("Anil");
+names.add("Kiran");
+
+names.sort((a, b) -> a.compareTo(b));  //3. Sort Strings Alphabetically
+names.sort((a, b) -> a.length() - b.length());  //4. Sort Strings by Length
+// list.sort(Comparator.comparing(Employee::getName));
+
+
+// list.sort(
+//  Comparator.comparing(Employee::getSalary)
+//            .thenComparing(Employee::getName)
+// );
+
+
+// list.sort(
+//  Comparator.comparing(Student::getMarks).reversed()
+//            .thenComparing(Student::getAge)
+// );
 
 
 
