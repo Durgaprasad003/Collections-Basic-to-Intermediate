@@ -2399,3 +2399,403 @@ Comparator<Employee> byName =
 (a,b) -> a.name.compareTo(b.name);
 
 Collections.sort(list, byName);
+
+
+5. LISTITERATOR
+What is ListIterator?
+
+Special iterator only for List implementations.
+
+Supports:
+
+forward traversal
+backward traversal
+add
+set
+remove
+Syntax
+ListIterator<String> it =
+list.listIterator();
+Forward
+while(it.hasNext()){
+   System.out.println(it.next());
+}
+Backward
+while(it.hasPrevious()){
+   System.out.println(it.previous());
+}
+Methods
+previous()
+
+Move backward.
+
+hasPrevious()
+
+Checks previous exists.
+
+add(E e)
+
+Insert during iteration.
+
+set(E e)
+
+Replace last returned element.
+
+Example
+List<String> list =
+new ArrayList<>(Arrays.asList("A","B"));
+
+ListIterator<String> it =
+list.listIterator();
+
+while(it.hasNext()){
+    String s = it.next();
+
+    if(s.equals("B")){
+        it.set("BB");
+    }
+}
+
+System.out.println(list);
+
+Output:
+
+[A, BB]
+
+
+
+
+
+
+
+
+6. ENUMERATION
+What is Enumeration?
+
+Legacy cursor used in old classes:
+
+Vector
+Hashtable
+Methods
+hasMoreElements()
+nextElement()
+Example
+Vector<String> v = new Vector<>();
+v.add("A");
+v.add("B");
+
+Enumeration<String> e = v.elements();
+
+while(e.hasMoreElements()){
+   System.out.println(e.nextElement());
+}
+
+Enumeration is legacy. Iterator replaced it.
+
+
+
+7. forEach()
+
+Modern traversal method.
+
+list.forEach(System.out::println);
+
+or
+
+list.forEach(x -> System.out.println(x));
+
+******************************************
+forEach is a default method in java.util.List interface (actually from Iterable)
+It takes a Consumer functional interface
+2. System.out::println → Method Reference
+This is shorthand for:
+n -> System.out.println(n)
+
+
+
+What is Spliterator?
+
+Advanced iterator for:
+
+splitting data
+parallel processing
+streams framework
+Example
+Spliterator<Integer> sp =
+list.spliterator();
+
+sp.forEachRemaining(System.out::println);
+
+
+
+**************************************
+ConcurrentModificationException
+Why?
+To prevent unpredictable behavior.
+
+10. FAIL-SAFE
+What is Fail-Safe?
+Iterator works on cloned snapshot or concurrent structure.
+Allows modification during iteration.
+Examples:
+CopyOnWriteArrayList
+ConcurrentHashMap iterator
+
+************************************************************
+11. CONCURRENTMODIFICATIONEXCEPTION
+What is It?
+
+Runtime exception when fail-fast iterator detects illegal modification.
+
+
+
+                List<Integer> list=new ArrayList<>(List.of(1,2,3,4,5,6,7,8));
+                list.removeIf(n -> n % 2 == 0);
+                System.out.println(list);
+
+map.forEach((k,v) ->
+   System.out.println(k+" "+v)
+);
+
+
+
+***************************************************
+3. SYNCHRONIZED COLLECTIONS
+
+Java provides wrappers:
+
+Collections.synchronizedList(...)
+Collections.synchronizedMap(...)
+Collections.synchronizedSet(...)
+
+These make normal collections thread-safe using locking.
+
+
+
+4. synchronizedList()
+What is It?
+
+Wraps list with synchronized methods.
+
+List<Integer> list =
+Collections.synchronizedList(
+    new ArrayList<>()
+);
+How It Works?
+
+Every method acquires lock.
+
+list.add(10);
+list.get(0);
+
+One thread at a time.
+
+*****************************************************
+Important Interview Point
+
+Iteration still needs manual synchronization.
+
+synchronized(list){
+   Iterator<Integer> it =
+       list.iterator();
+
+   while(it.hasNext()){
+      System.out.println(it.next());
+   }
+}
+Why?
+
+Because iterator itself may still see concurrent changes.
+
+
+
+
+8. CONCURRENTHASHMAP (VERY IMPORTANT)
+What is It?
+
+High-performance thread-safe Map.
+
+ConcurrentHashMap<Integer,String> map =
+new ConcurrentHashMap<>();
+Why Better Than Hashtable?
+
+Hashtable locks entire map.
+
+ConcurrentHashMap uses advanced concurrency mechanisms:
+
+finer locking
+bucket-level operations
+CAS (compare and swap)
+better parallel access
+Meaning
+
+Multiple threads can often work simultaneously.
+
+******************************
+Difference Hashtable vs ConcurrentHashMap?
+Hashtable locks whole map.
+ConcurrentHashMap allows better parallelism.
+
+
+
+
+
+
+
+15. UNMODIFIABLE WRAPPERS
+
+Read-only view.
+
+List<Integer> list =
+Collections.unmodifiableList(
+Arrays.asList(1,2,3)
+);
+
+Try add/remove:
+
+UnsupportedOperationException
+Why Use?
+
+Protect data from modification.
+
+
+
+
+16. IMMUTABLE COLLECTIONS (Java 9+)
+List.of()
+List<String> list =List.of("A","B","C");
+Properties
+immutable
+no add/remove/set
+no null allowed
+
+
+
+17. ARRAYS CLASS METHODS
+Arrays.sort()
+int[] arr = {4,2,1};
+
+Arrays.sort(arr);
+Arrays.toString()
+System.out.println(
+Arrays.toString(arr)
+);
+
+Output:
+
+[1, 2, 4]
+Arrays.fill()
+Arrays.fill(arr,5);
+
+Output:
+
+[5,5,5]
+Arrays.equals()
+
+Compare contents.
+
+Arrays.equals(a,b);
+Arrays.asList() (VERY IMPORTANT)
+
+Converts array to fixed-size list.
+
+List<String> list =
+Arrays.asList("A","B");
+Trap 1: add/remove not allowed
+list.add("C");
+
+Throws exception.
+
+____________________________________________STREAMS________________________________________________
+The Stream API is part of the java.util.stream package introduced in Java 8. It is used to process collections of data in a functional and declarative way, allowing us to write cleaner, more concise, and more readable code.
+
+
+
+
+✔ Print only
+list.stream()
+    .filter(n -> n % 2 == 0)
+    .forEach(System.out::println);
+✔ Store result
+List<Integer> result =
+list.stream()
+    .filter(n -> n % 2 == 0)
+    .collect(Collectors.toList());
+
+
+
+🔍 Types of Operations
+1. Intermediate Operations (lazy)
+filter()
+map()
+sorted()
+
+👉 These return a new stream and are not executed immediately.
+
+2. Terminal Operations (trigger execution)
+collect()
+forEach()
+count()
+
+👉 These produce a result or side effect.
+
+
+**************************************
+🎯 Why do we use collect() in Stream API?
+👉 We use collect() to convert the processed stream into a concrete result (like List, Set, Map, etc.).
+
+
+2. COLLECTION vs STREAM
+Collection	                    Stream
+Stores data	                    Processes data
+Mutable usually	                No storage
+Can iterate many times	        Consumed once
+Data structure	                Computation pipeline
+
+
+
+Intermediate Operations
+
+Return Stream:
+
+filter
+map
+sorted
+distinct
+limit
+skip
+
+
+Terminal Operations
+
+End pipeline:
+
+collect
+forEach
+reduce
+count
+min
+max
+
+
+17. Optional with Streams
+
+🎯 What is Optional?
+
+Optional is a class in java.util.Optional
+
+👉 It is used to:
+represent a value that may or may not be present (null-safe container)
+Find first match.
+
+Optional<Integer> x =
+list.stream()
+    .filter(n -> n > 3)
+    .findFirst();
+
+    Why was Optional introduced?
+
+👉 To avoid:
+
+NullPointerException
+Too many null checks
