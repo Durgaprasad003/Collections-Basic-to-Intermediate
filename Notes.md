@@ -2798,4 +2798,4 @@ list.stream()
 👉 To avoid:
 
 NullPointerException
-Too many null checks
+Too many null check
