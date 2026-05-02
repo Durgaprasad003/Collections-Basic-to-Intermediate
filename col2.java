@@ -11,15 +11,15 @@ public class col2 {
 
 
         //  removing duplicates
-    //     List<Integer> list=Arrays.asList(1,2,2,3,4,5);
-    //    Set<Integer> set=new HashSet<>(list);
-    //    System.out.println(set);
-    //    Iterator<Integer> it=set.iterator();
-    //    while (it.hasNext()) {
-    //     System.out.println(it.next());
-    //     set.add(4);
+        List<Integer> list=Arrays.asList(1,2,2,3,4,5);
+       Set<Integer> set=new HashSet<>(list);
+       System.out.println(set);
+       Iterator<Integer> it=set.iterator();
+       while (it.hasNext()) {
+        System.out.println(it.next());
+        set.add(4);
         
-    //    }
+       }
 
 
    //counting frequency
@@ -37,7 +37,7 @@ public class col2 {
 //     System.out.println(entry.getKey()+" "+entry.getValue());
 // }
 
-Set<Integer> set=new HashSet<>();
+// Set<Integer> set=new HashSet<>();
 // System.out.println(set.add(1));
 System.out.println(set.add(1));
 if(!set.add(2))

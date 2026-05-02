@@ -87,6 +87,10 @@ Collections.sort(list,
               .thenComparing(s -> s.id)
 );
 
+// Collections.sort(list, Comparator.comparingInt(e -> e.salary));
+
+// 🔹 Modern way (recommended)
+// list.sort(Comparator.comparingInt(e -> e.salary));
 
     }
     

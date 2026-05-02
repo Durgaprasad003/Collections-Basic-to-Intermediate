@@ -122,6 +122,13 @@ isEmpty()
 ************************* in list interface for removing we can insert index or object name  to remove the element
 
 
+ ArrayList<String> list = new ArrayList<>();
+
+        list.add("A");
+        list.add("B");
+        list.add("C");
+        *************************************************
+    System.out.println(list.set(1, "X")); // 👈 printing set()  it will give old value that is B******************
 
 
 Important List Methods
@@ -142,6 +149,60 @@ So changes in the sublist usually reflect in the main list, and some changes in 
 
 
 
+
+vv🔹 remove() in ArrayList (⚠️ Two Versions)
+1️⃣ remove(int index)
+list.remove(0);
+
+👉 Returns the element removed (not boolean)  **********************************8
+
+
+
+2️⃣ remove(Object o)
+list.remove(Integer.valueOf(10));
+
+👉 Returns boolean
+
+true → element found and removed
+false → element not present
+
+
+
+
+  ArrayList<Integer> mainList = new ArrayList<>();
+        mainList.add(10);
+        mainList.add(20);
+        mainList.add(30);
+        mainList.add(40);
+        mainList.add(50);
+
+        System.out.println("Main List: " + mainList);
+
+        // Create sublist (index 1 to 4 → 20,30,40)
+        List<Integer> subList = mainList.subList(1, 4);
+
+        System.out.println("SubList: " + subList);
+
+        // 🔹 Change in sublist
+        subList.set(0, 200); // replaces 20 with 200
+
+        System.out.println("\nAfter modifying subList:");
+        System.out.println("Main List: " + mainList);
+        System.out.println("SubList: " + subList);
+
+        // 🔹 Change in main list
+        mainList.set(2, 300); // replaces 30 with 300
+
+
+**************************************************************************
+             // 🔴 Structural modification (VERY IMPORTANT)
+        mainList.add(60); // This breaks subList
+
+        System.out.println("\nAfter structural change:");
+        System.out.println("Main List: " + mainList);
+
+        // This line may throw ConcurrentModificationException
+        System.out.println("SubList: " + subList);
 
 
 
@@ -259,6 +320,9 @@ Avoid index loop for LinkedList → slower
 
 
 No, an Iterator is mainly used to traverse and remove elements, not add elements.
+Iterator is fail-fast
+It tracks a value called modCount (modification count)
+If the list is structurally modified outside iterator, it detects mismatch
 With Iterator
 You can :
 Read elements using next()
@@ -269,8 +333,18 @@ Remove current element using remove()
 
 Yes — with ListIterator, you can add elements.
 
-ListIterator supports the add(E e) method, which inserts an element at the iterator’s current position while iterating.
+🔥 Internal Behavior (Step-by-step)
+Cursor is between elements
+add() inserts element at cursor
+Cursor moves after inserted element
+modCount is updated → avoids exception
 
+ListIterator supports the add(E e) method, which inserts an element at the iterator’s current position while iterating.
+🔷 Important Rules (VERY IMPORTANT 🔥)
+
+✔ add() inserts after current element (after next())
+✔ No ConcurrentModificationException
+✔ Safe because iterator updates internal state
 Example
 List<String> list = new ArrayList<>();
 list.add("A");
@@ -317,14 +391,14 @@ names.add("D");      // Error
 
 
 
-Feature	Iterator	ListIterator
-Works with	All Collections	Only List (ArrayList, LinkedList)
-Direction	Forward only	Forward + Backward
-Methods	hasNext(), next(), remove()	All iterator methods + more
-Previous Element	❌ No	✅ previous()
-Add Element While Iterating	❌ No	✅ add()
-Replace Element	❌ No	✅ set()
-Index Info	❌ No	✅ nextIndex(), previousIndex()
+Feature	              Iterator      	                 ListIterator
+Works with	          All Collections	                 Only List (ArrayList, LinkedList)
+Direction             Forward only	                     Forward + Backward
+Methods	              hasNext(), next(), remove()	     All iterator methods + more
+Previous Element	  ❌ No	                           ✅ previous()
+Add Element While Iterating	❌ No	                   ✅ add()
+Replace Element	            ❌ No	                    ✅ set()
+Index Info	                ❌ No	                    ✅ nextIndex(), previousIndex()
 
 
 *******************
@@ -360,9 +434,14 @@ Frequent read
 Less insertion in middle
 Index access needed
 
+********************************************************************
 
 LinkedList Deep Dive
-
+LinkedList is a doubly linked list implementation of the List and Deque interfaces in Java.
+Stores elements as nodes (data + prev + next references)
+👉 Maintains insertion order
+👉 Allows duplicates
+👉 Not synchronized
 Doubly linked list.
 
 Each node has:
@@ -390,6 +469,31 @@ Use Case
 Frequent insert/delete
 Queue implementation
 
+🔷 4. Important Methods (Core API)
+✅ Add Elements
+LinkedList<Integer> list = new LinkedList<>();
+
+list.add(10);
+list.addFirst(5);
+list.addLast(20);
+✅ Access Elements
+list.get(0);
+list.getFirst();
+list.getLast();
+✅ Remove Elements
+list.remove();       // removes first
+list.removeFirst();
+list.removeLast();
+list.remove(1);      // by index
+✅ Queue / Deque Operations (VERY IMPORTANT ⭐)
+list.offer(10);      // add
+list.poll();         // remove first
+list.peek();         // view first
+
+📌 Works like Queue 
+
+
+
 
 Feature	ArrayList	LinkedList
 Structure	Dynamic Array	Doubly Linked
@@ -400,15 +504,233 @@ Memory	Low	High
 
 
 
--________________________________________-SET Interface
 
-No duplicates.
+
+
+
+
+A stack is a LIFO (Last-In, First-Out) linear data structure where insertion and deletion happen at one end called the top.
+
+In Java, you can use:
+Stack (legacy, synchronized)
+Deque (recommended)
+ArrayDeque (best in practice
+
+
+| Operation | Meaning               |
+| --------- | --------------------- |
+| push(x)   | insert element on top |
+| pop()     | remove top element    |
+| peek()    | view top element      |
+| isEmpty() | check empty           |
+
+
+        Deque<Integer> stack = new ArrayDeque<>();  //recommended way ***********
+        “ArrayDeque is preferred over Stack because it is faster and not burdened by synchronization overhead.”
+
+
+🔷 5. Internal Working
+📌 Stack (java.util.Stack)
+Extends Vector
+Uses array internally
+Synchronized → slower
+📌 ArrayDeque
+Uses resizable circular array
+No synchronization → faster
+
+
+
+| Feature | Stack | Queue |
+| ------- | ----- | ----- |
+| Order   | LIFO  | FIFO  |
+| Insert  | Top   | Rear  |
+| Remove  | Top   | Front |
+
+
+🔥 1. Stack is Legacy
+
+👉 Avoid in real projects
+👉 Prefer ArrayDeque
+
+
+2. No Null Elements in ArrayDeque
+stack.push(null); // ❌ NullPointerException
+🔥 3. Stack is Thread-Safe (but slow)
+
+👉 Because it extends Vector
+
+🔥 4. Deque is NOT thread-safe
+
+👉 Faster, but needs manual sync if required
+
+🔥 5. search() method (rarely known)
+st.search(10); // position from top (1-based)
+🔥 6. Stack Overflow (Important Concept)
+
+👉 Happens due to:
+
+infinite recursion
+deep recursion
+
+
+Vector is a resizable array implementation (like ArrayList) that is synchronized (thread-safe) and part of Java’s legacy collections.
+
+👉 Maintains insertion order
+👉 Allows duplicates
+👉 Thread-safe by default
+
+
+🔷 2. Internal Working (CRITICAL ⭐)
+Backed by a dynamic array
+Default capacity = 10
+Growth strategy:
+newCapacity = oldCapacity * 2; // if capacityIncrement not set
+
+👉 Example: 10 → 20 → 40 → 80
+
+
+🔷 4. Important Methods
+✅ Add Elements
+Vector<Integer> v = new Vector<>();
+
+v.add(10);
+v.addElement(20); // legacy method
+✅ Access Elements
+v.get(0);
+v.firstElement();
+v.lastElement();
+✅ Remove Elements
+v.remove(0);
+v.removeElement(10); // legacy
+✅ Size & Capacity (VERY IMPORTANT ⭐)
+v.size();
+v.capacity();
+
+
+Enumeration<Integer> e = v.elements();
+
+while(e.hasMoreElements()){
+    System.out.println(e.nextElement());
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-________________________________________-SET Interface
+Set is a collection that does not allow duplicate elements and does not guarantee index-based access.
+👉 Order depends on implementation
+doesnot gurantee insertion order
+👉 Allows at most one null (depends on implementation)
+
+
+🔹 Why does LinkedHashSet maintain insertion order?
+Because internally it uses:
+👉 Hash table + Doubly Linked List
+
+
+
 
 Implementations:
 
 HashSet
 LinkedHashSet
 TreeSet
+
+
+
+🔷 4. Important Methods (Core API)
+Set<Integer> set = new HashSet<>();
+✅ Add
+set.add(10);
+set.add(20);
+set.add(10); // duplicate ignored
+✅ Remove
+set.remove(10);
+✅ Check
+set.contains(20);
+set.isEmpty();
+✅ Size
+set.size();
+✅ Clear
+set.clear();
+
+
+
+*************************************
+🔹 What actually uses Map?
+
+Some Set implementations use a Map internally 👇
+
+1️⃣ HashSet
+Uses 👉 HashMap internally
+// internally (simplified)
+HashMap<E, Object> map;
+Element → stored as key
+Value → dummy object (PRESENT)
+2️⃣ LinkedHashSet
+Uses 👉 LinkedHashMap
+
+👉 That’s why it maintains order
+
+3️⃣ TreeSet
+Uses 👉 TreeMap
+
+👉 That’s why it is sorted
+
+
+*************************************************************
+
+🔷 6. How Set Prevents Duplicates (CRITICAL ⭐)
+
+👉 In HashSet:
+
+Uses hashCode()
+Then checks equals()
+
+📌 Interview Line
+
+“HashSet uses hashCode() and equals() to ensure uniqueness of elements.”
+
+
+
+
+🔷 7. Important Rules (VERY IMPORTANT ⚠️)
+🔥 1. Must override equals() & hashCode()
+class Student {
+    int id;
+
+    public int hashCode() { return id; }
+
+    public boolean equals(Object o) {
+        return this.id == ((Student)o).id;
+    }
+}
+
+👉 Otherwise duplicates may occur
+
+
+| Feature    | Set     | List       |
+| ---------- | ------- | ---------- |
+| Duplicates | ❌ No    | ✔ Yes      |
+| Order      | Depends | Maintained |
+| Index      | ❌ No    | ✔ Yes      |
+
+
 
 Set<String> set = new HashSet<>();
 set.add("Java");
@@ -448,6 +770,212 @@ Uses Red Black Tree.
 
 
 
+
+LinkedHashSet is a hash table + linked list based implementation of Set that maintains insertion order while ensuring uniqueness.
+
+👉 No duplicates
+👉 Preserves insertion order
+👉 Not synchronized
+
+
+TreeSet is a sorted Set implementation that stores unique elements in sorted order using a self-balancing binary search tree (Red-Black Tree).
+
+*******************************************************************
+
+
+🔹 1. first()
+👉 Returns smallest element
+🔹 2. last()
+👉 Returns largest element
+🔹 3. higher(x)
+👉 Strictly greater than x
+set.higher(10); // 20
+✔ Does NOT include 10
+✔ Finds next bigger
+🔹 4. lower(x)
+👉 Strictly less than x
+set.lower(20); // 10
+✔ Does NOT include 20
+✔ Finds next smaller
+
+🔹 1. subSet(start, end)
+
+👉 Elements from start (inclusive) to end (exclusive)
+
+set.subSet(10, 30); // [10, 20]
+
+✔ 10 included
+❌ 30 excluded
+
+
+🔹 2. headSet(x)
+
+👉 All elements less than x
+
+set.headSet(20); // [10]
+
+
+
+🔹 3. tailSet(x)
+
+👉 All elements greater than or equal to x
+
+set.tailSet(20); // [20, 30]
+
+
+        System.out.println(set); // [10, 20, 30]
+
+🔷 5. Special Sorted Methods (VERY IMPORTANT ⭐⭐⭐)
+🔥 Navigation Methods
+set.first();   // smallest
+set.last();    // largest
+set.higher(10);  // next greater → 20
+set.lower(20);   // next smaller → 10
+set.ceiling(15); // ≥ 15 → 20
+set.floor(15);   // ≤ 15 → 10
+🔥 Range Operations
+set.subSet(10, 30); // [10, 20]
+set.headSet(20);    // [10]
+set.tailSet(20);    // [20, 30]
+
+
+
+
+
+
+
+Queue is a FIFO (First-In, First-Out) collection where elements are inserted at the rear and removed from the front.
+👉 No index-based access
+👉 Order matters (FIFO)
+👉 Typically used for buffering, scheduling, and processing streams
+
+
+🔷 3. Method Differences (INTERVIEW TRAP 🔥)
+Method	On Failure
+add()	throws exception
+offer()	returns false
+remove()	throws exception
+poll()	returns null
+element()	throws exception
+peek()	returns null
+
+
+
+| Operation          | Meaning           |
+| ------------------ | ----------------- |
+| add(e) / offer(e)  | insert at rear    |
+| remove() / poll()  | remove from front |
+| element() / peek() | view front        |
+
+
+
+🔹 1. LinkedList
+
+👉 Implements Queue & Deque
+👉 Doubly linked list
+
+Queue<Integer> q = new LinkedList<>();
+q.offer(10);
+q.offer(20);
+System.out.println(q.poll()); // 10
+🔹 2. PriorityQueue
+
+👉 Orders elements by priority (min-heap)
+
+PriorityQueue<Integer> pq = new PriorityQueue<>();
+pq.offer(30);
+pq.offer(10);
+pq.offer(20);
+
+System.out.println(pq.poll()); // 10 (smallest first)
+
+📌 Not FIFO → priority-based
+
+🔹 3. ArrayDeque
+
+👉 Best general-purpose queue
+
+Queue<Integer> q = new ArrayDeque<>();
+q.offer(10);
+q.offer(20);
+
+📌 Faster than LinkedList (no node overhead)
+
+
+
+🔹 4. Deque (Double-ended Queue)
+
+👉 Can act as:
+
+Queue
+Stack
+Deque<Integer> dq = new ArrayDeque<>();
+
+dq.offerFirst(10);
+dq.offerLast(20);
+
+dq.pollFirst(); // 10
+dq.pollLast();  // 20
+
+
+
+
+
+
+
+
+
+
+
+
+
+Map stores data as key–value pairs, where keys are unique and each key maps to exactly one value.
+
+👉 No duplicate keys (values can repeat)
+👉 Not a subtype of Collection
+👉 Access is key-based, not index-based
+
+
+🔷 2. Core Implementations (VERY IMPORTANT ⭐⭐⭐)
+1. HashMap
+Unordered
+Fastest (average O(1))
+Uses hashing
+2. LinkedHashMap
+Maintains insertion order (or access order)
+Slight overhead
+3. TreeMap
+Sorted by key
+Uses Red-Black Tree
+O(log n)
+
+
+**********************************************************************
+🔹 What happens if you use map.put() inside System.out.println()?
+
+In a Map:
+
+👉 put(key, value) returns the previous value associated with that key
+
+🔹 Example
+import java.util.HashMap;
+
+public class Main {
+    public static void main(String[] args) {
+        HashMap<Integer, String> map = new HashMap<>();
+
+        System.out.println(map.put(1, "A")); // first time
+        System.out.println(map.put(1, "B")); // replacing
+    }
+}
+🔹 Output
+null
+A
+
+
+
+
+
 1. Fail-Fast Example (ArrayList)***********************************************88
 import java.util.*;
 
@@ -473,6 +1001,7 @@ public class Main {
 }
 A
 B
+***********************************************
 Exception in thread "main" java.util.ConcurrentModificationException
 
 Why it happens
@@ -492,6 +1021,39 @@ Iterator compares:
 expectedModCount != modCount
 
 Mismatch detected → throws ConcurrentModificationException.
+
+
+👉 Copy-On-Write mechanism
+
+When you modify (add/remove)
+It creates a NEW copy of the array
+Modifications happen on the new copy
+The iterator still uses the old snapshot
+🔥 What your code is actually doing
+
+Step-by-step:
+
+Iterator is created → 📸 snapshot taken:
+["A", "B", "C"]
+
+When "B" is found:
+
+list.add("X");
+
+👉 New array created → ["A", "B", "C", "X"]
+
+BUT iterator is still reading:
+👉 ["A", "B", "C"] (old snapshot)
+✅ Output will be:
+A
+B
+C
+[A, B, C, X]
+
+👉 Notice:
+
+"X" is NOT printed in loop
+But appears in final list   
 
 
 
@@ -834,6 +1396,14 @@ Then Java calculates:
 index = (n - 1) & hash
 
 HashMap internally uses an array of buckets. During put, it calculates the key’s hashCode, mixes bits, derives a bucket index, and stores the key-value node there. If multiple keys map to the same bucket, collisions are handled using linked lists or Red-Black trees in Java 8+. During get, the same hash process locates the bucket, and equals() identifies the exact key. When size crosses capacity × load factor, HashMap resizes and rehashes entries for better performance.
+
+*****************************************************************
+🔹 Step 3: Collision Handling
+Compare keys using equals()
+👉 If:
+equals() == true → ✔️ update value
+equals() == false → ❗ collision
+
 
 Internally:
 hashCode() → choose bucket
@@ -1540,7 +2110,7 @@ ConcurrentHashMap for multi-thread
 3. Why HashMap Allows One Null Key
 
 Because null has no hashCode().
-
+******************************************
 Java reserves bucket index 0 for null key.
 
 map.put(null, "value");
