@@ -3369,3 +3369,88 @@ list.stream()
 
 NullPointerException
 Too many null check
+
+
+
+******************************************************************************************************************
+hashmap internally uses .equals() to compare keys
+identityhashmap internally uses == to compare keys
+
+hashmap dominates garbage collector 
+garbage collector dominates weakhashmap
+
+
+| Feature                     | HashMap            | ConcurrentHashMap              |
+| --------------------------- | ------------------ | ------------------------------ |
+| Thread-safe                 | ❌ No               | ✅ Yes                          |
+| Synchronization             | None               | Internal (efficient locking)   |
+| Performance (single thread) | Fast               | Slight overhead                |
+| Performance (multi-thread)  | ❌ Unsafe           | ✅ High performance             |
+| Null keys/values            | ✅ Allows           | ❌ Not allowed                  |
+| Use case                    | Single-thread apps | Multi-thread / concurrent apps |
+
+
+Hashtable does not allow a null key or a null value.
+
+ConcurrentHashMap does not allow a null key or a null value.
+
+
+
+
+**********************************************************************************************************
+
+import java.util.HashSet;
+import java.util.Set;
+
+class Student {
+    int id;
+    String name;
+
+    // Constructor
+    public Student(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    // toString method
+    @Override
+    public String toString() {
+        return "Student{id=" + id + ", name='" + name + "'}";
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+
+        Set<Student> set = new HashSet<>();
+
+        Student s1 = new Student(1, "Pawan");
+        Student s2 = new Student(1, "Pawan");
+
+        set.add(s1);
+        set.add(s2);
+
+        System.out.println(set);
+    }
+}
+
+
+👉 Output will contain 2 objects, even though data is same.
+🧠 Why?
+HashSet uses:
+hashCode()
+equals()
+But we did NOT override them, so:
+Both objects are treated as different (different memory)
+
+
+
+
+
+
+
+in our that student class doesnt override equals();********************************
+In Java, the String class overrides equals().
+
+
+LinkedList and ArrayDeque both implement the Queue (and Deque) interface, so they are like sibling classes in the Java Collections Framework.
