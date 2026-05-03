@@ -3453,4 +3453,4 @@ in our that student class doesnt override equals();*****************************
 In Java, the String class overrides equals().
 
 
-LinkedList and ArrayDeque both implement the Queue (and Deque) interface, so they are like sibling classes in the Java Collections Framework.
+LinkedList and ArrayDeque both implement the Queue (and Deque) interface, so they are like sibling classes in the Java Collections Framework..
