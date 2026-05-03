@@ -3454,3 +3454,14 @@ In Java, the String class overrides equals().
 
 
 LinkedList and ArrayDeque both implement the Queue (and Deque) interface, so they are like sibling classes in the Java Collections Framework..
+
+(*******************************************************)
+priority queue internally user min heap 
+Using PriorityQueue:
+
+Internally uses a min-heap
+Only guarantees:
+peek() → smallest element
+poll() → removes smallest
+
+👉 It does NOT guarantee full sorting when printed
